@@ -39,7 +39,7 @@ class Questions {
      //Abaixo subistituir a url local para o local host criado do seu IISExpress ou usar pacote node iisexpress-proxy
      // site: https://www.npmjs.com/package/iisexpress-proxy e rodar iisexpress-proxy 'suaPorta' to 3000
      // e colocar na URL abaixo
-      final response = await http.get(Uri.https('http://192.168.0.11/BMWQUIZ/QUIZ', ''));
+      final response = await http.get(Uri.https('http://192.168.0.11/BMWQUIZ', '/QUIZ'));
 
       if (response.statusCode == 200) {
 
