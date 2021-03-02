@@ -44,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _visible = true;
   bool _visibleResult = false;
   final _random = new Random();
-  Questions elementQuestion;
+  Questions elementQuestion = new Questions(id: 0,question: "",anwser: "");
   List<Questions> questionsAnwsered;
   Timer _timer;
 
@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
             score += 20;
           }
           questions.remove(elementQuestion);
-          if (questions.length == 0) {
+          if (questions.length == 0 || questions == null) {
             _visible = false;
             print("Sua pontuação é: ${score}");
             _visibleResult = true;
@@ -75,7 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void _saveAnser(){
     setState(() {
       _visible = false;
-      _startTimer();
+      if(!_visibleResult) {
+        _startTimer();
+      }
     });
 
   }
@@ -83,14 +85,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState(){
     super.initState();
+    options = Options.getOptions();
     initQuiz();
-
   }
 
-  void initQuiz(){
-    setState(() {
-      options = Options.getOptions();
-      questions = Questions.getAnwsers();
+  void initQuiz() async{
+    questions = await Questions.getAnwsers();
+    setState(()  {
       elementQuestion = questions[_random.nextInt(questions.length)];
       score = 0;
       _visibleResult = false;
@@ -117,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   List<Widget> createRadioList(){
+
       List<Widget> widgets = [];
       for(Options q in options){
         widgets.add(
@@ -199,3 +201,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
