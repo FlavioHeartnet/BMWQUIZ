@@ -27,9 +27,9 @@ class MyApp extends StatelessWidget {
 
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -37,32 +37,32 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int score = 0;
-  List<Options> options;
-  List<Questions> questions;
-  Options selectedOptions;
+  late List<Options> options;
+  List<Questions>? questions;
+  Options? selectedOptions;
   bool _visible = true;
   bool _visibleResult = false;
   final _random = new Random();
   Questions elementQuestion = new Questions(id: 0,question: "",anwser: "");
-  List<Questions> questionsAnwsered;
-  Timer _timer;
+  List<Questions>? questionsAnwsered;
+  late Timer _timer;
 
   _startTimer(){
     _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
       setState(() {
         if(!_visible) {
           _visible = true;
-          if (selectedOptions.option == elementQuestion.anwser) {
+          if (selectedOptions!.option == elementQuestion.anwser) {
             score += 20;
           }
-          questions.remove(elementQuestion);
-          if (questions.length == 0 || questions == null) {
+          questions!.remove(elementQuestion);
+          if (questions!.length == 0 || questions == null) {
             _visible = false;
             print("Sua pontuação é: $score");
             _visibleResult = true;
             _timer.cancel();
           } else {
-            elementQuestion = questions[_random.nextInt(questions.length)];
+            elementQuestion = questions![_random.nextInt(questions!.length)];
           }
         }else{
           _timer.cancel();
@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initQuiz() async{
     questions = await Questions.getAnwsers();
     setState(()  {
-      elementQuestion = questions[_random.nextInt(questions.length)];
+      elementQuestion = questions![_random.nextInt(questions!.length)];
       score = 0;
       _visibleResult = false;
       _timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
-  setSelectedOptions(Options q){
+  setSelectedOptions(Options? q){
     setState(() {
       selectedOptions = q;
     });
@@ -123,9 +123,9 @@ class _MyHomePageState extends State<MyHomePage> {
         widgets.add(
           RadioListTile(
             value: q,
-            title: Text(q.option),
+            title: Text(q.option!),
             groupValue: selectedOptions,
-            onChanged: (currentOption){
+            onChanged: (dynamic currentOption){
               setSelectedOptions(currentOption);
             },
             selected: selectedOptions == q,
@@ -154,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           )
         ],
-        title: Text(widget.title),
+        title: Text(widget.title!),
       ),
       body: Column(
         children: [

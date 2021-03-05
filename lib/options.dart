@@ -1,6 +1,6 @@
 class Options{
-  int id;
-  String option;
+  int? id;
+  String? option;
 
   Options({this.id, this.option});
 

@@ -2,18 +2,18 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Questions {
-   int id;
-   String question;
-   String anwser;
+   int? id;
+   String? question;
+   String? anwser;
 
   Questions({this.id, this.question, this.anwser});
 
 
 
-   static List<Questions> fromJson(Map<String, dynamic> json) {
-     List<Questions> list;
+   static List<Questions>? fromJson(Map<String, dynamic> json) {
+     List<Questions>? list;
        json.forEach((key, value) {
-         list.add(
+         list!.add(
              Questions(
                question: json['Question'],
                anwser: json['Anwser'],
@@ -26,7 +26,7 @@ class Questions {
    }
 
 
-   static Future<List<Questions>> getAnwsers() async {
+   static Future<List<Questions>?> getAnwsers() async {
       //Caso não consiga fazer a API roda Local usar estes Mocks abaixo ( descomentar este codigo comentado )
      return (<Questions>[
        Questions(id: 1, anwser: "Germany", question: "BMW"),
