@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:http/http.dart' as http;
 import 'package:bmwquiz/options.dart';
 import 'package:bmwquiz/question.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
           questions.remove(elementQuestion);
           if (questions.length == 0 || questions == null) {
             _visible = false;
-            print("Sua pontuação é: ${score}");
+            print("Sua pontuação é: $score");
             _visibleResult = true;
             _timer.cancel();
           } else {
@@ -164,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
             duration: Duration(milliseconds: 100),
             child: Container(
               padding: EdgeInsets.all(24.0),
-              child: Text("Your Score is: ${score}%",
+              child: Text("Your Score is: $score%",
                 style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
             ),
