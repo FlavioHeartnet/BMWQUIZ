@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatefulWidget{
   MyHomePage({Key? key, this.title}) : super(key: key);
 
   final String? title;
@@ -17,17 +17,17 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   int score = 0;
   late List<Options> options;
   List<Questions>? questions;
   Options? selectedOptions;
   bool _visible = true;
-  bool _visibleResult = false;
   final _random = new Random();
   Questions? currentQuestion;
   List<Questions> questionsAnwsered = [];
   late Timer _timer;
+  late AnimationController progressBarController;
 
   Questions getRandomQuestion() {
     return questions![_random.nextInt(questions!.length)];
@@ -47,7 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
           if (questions!.length == 0 || questions == null) {
             setState(() {
               _visible = false;
-              _visibleResult = true;
             });
             _timer.cancel(); 
             questionsAnwsered.sort((a,b) => a.id!.compareTo(b.id!));
@@ -65,9 +64,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void _nextQuestion(){
     setState(() {
       _visible = false;
-      if(!_visibleResult) {
-        _fecthAnwser();
-      }
+      _fecthAnwser();
+      _initProgressBarAnimation();
+        
     });
   }
 
@@ -77,15 +76,33 @@ class _MyHomePageState extends State<MyHomePage> {
     initQuiz();
   }
 
-  void initQuiz() async{
-    options = Options.getOptions();
-    questions = await Questions.getAnwsers();
-    setState(()  {
-      questionsAnwsered = [];
-      currentQuestion = getRandomQuestion();
-      score = 0;
-      _visibleResult = false;
-      _timer = Timer(Duration(milliseconds: 500), () {
+  @override
+  void dispose() {
+    progressBarController.dispose();
+    super.dispose();
+  }
+
+  void _initProgressBarAnimation(){
+    progressBarController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20),
+    )..addListener(() {
+      setState(() {
+        
+      });
+    });
+      progressBarController.forward().then((value) => {
+        if(questions?.length != 0 && progressBarController.isCompleted){
+          setState(()=>{
+            _nextQuestion()
+          })
+        }
+      });
+      
+  }
+
+  _firstFadeInOutAnimatedQuestionLoad(){
+    _timer = Timer(Duration(milliseconds: 500), () {
       setState(() {
           if(!_visible){
             _visible = true;
@@ -93,7 +110,18 @@ class _MyHomePageState extends State<MyHomePage> {
             _timer.cancel();
       });
       });
+  }
+
+  void initQuiz() async{
+    _initProgressBarAnimation();
+    options = Options.getOptions();
+    questions = await Questions.getAnwsers();
+    setState(()  {
+      questionsAnwsered = [];
+      currentQuestion = getRandomQuestion();
+      score = 0;
     });
+    _firstFadeInOutAnimatedQuestionLoad();
   }
 
   setSelectedOptions(Options? option){
@@ -145,15 +173,20 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          AnimatedOpacity(
-            opacity: _visibleResult ? 1.0 : 0.0,
-            duration: Duration(milliseconds: 100),
-            child: Container(
-              padding: EdgeInsets.all(24.0),
-              child: Text("Your Score is: $score%",
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.grey,
+                  value: progressBarController.value,
+                  semanticsLabel: "Timer for anwser the question",
+                ),
+              )
+            ],
           ),
           Container(
             margin: EdgeInsets.all(24),
@@ -187,8 +220,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _sendFinalScorePage(Score score) async{
-    await Navigator.push(context,MaterialPageRoute(builder: (c) => FinalScore(score: score,)));
-    initQuiz();
+      var navigateResult = await Navigator.push(context,MaterialPageRoute(builder: (c) => FinalScore(score: score,)));
+      if(navigateResult == 'init_quiz'){
+         initQuiz();
+      }
   }
 
 }

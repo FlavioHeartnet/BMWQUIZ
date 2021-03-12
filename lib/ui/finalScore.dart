@@ -24,8 +24,13 @@ List<Questions>? rightAnwsers;
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
+    return WillPopScope(child:
+    Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop('init_quiz'),
+          ),
         title: Text("Quiz Result"),
       ),
       body: Center(
@@ -39,14 +44,19 @@ List<Questions>? rightAnwsers;
               )
             ),
             Flexible(
-              flex: 2,
+              flex: 6,
               child: _createDynamicListView()
             )
           ],
           mainAxisAlignment: MainAxisAlignment.center,
         ),
       ),
-    );
+    ),
+    onWillPop: () async => false);
+  }
+
+  String? _checkNullValueForBlanketAnwser(int index){
+    return widget.score.myAnwsers[index].anwser == "null" ? "Not Anwsered" :  widget.score.myAnwsers[index].anwser;
   }
 
    List<Widget> _listFinalResultItens(int index, List<Questions>? rightAnwsers){
@@ -60,7 +70,7 @@ List<Questions>? rightAnwsers;
                 ),
                 Container(
                   padding: EdgeInsets.all(2),
-                  child: Text("Anwser: ${widget.score.myAnwsers[index].anwser}", style: TextStyle(fontSize: 16)),
+                  child: Text("Anwser: ${_checkNullValueForBlanketAnwser(index)}", style: TextStyle(fontSize: 16)),
                 )
               ],
             )),
