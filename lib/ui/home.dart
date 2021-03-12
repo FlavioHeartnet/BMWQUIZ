@@ -26,44 +26,47 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _visibleResult = false;
   final _random = new Random();
   Questions? currentQuestion;
-  List<Questions?>?questionsAnwsered;
+  List<Questions> questionsAnwsered = [];
   late Timer _timer;
 
   Questions getRandomQuestion() {
     return questions![_random.nextInt(questions!.length)];
   }
 
-  _startTimer(){
-    _timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
-      setState(() {
+  _fecthAnwser(){
+    _timer = Timer(Duration(milliseconds: 1000), () async {
         if(!_visible) {
-          _visible = true;
-          questionsAnwsered?.add(currentQuestion);
-          if (selectedOptions!.option == currentQuestion!.anwser) {
+          setState(() {
+            _visible = true;
+          });
+          questionsAnwsered.add(Questions(id: currentQuestion?.id,anwser: selectedOptions?.option));
+          questions!.remove(currentQuestion);
+          if (selectedOptions?.option == currentQuestion?.anwser) {
             score += 20;
           }
-          questions!.remove(currentQuestion);
           if (questions!.length == 0 || questions == null) {
-            _visible = false;
-            print("Sua pontuação é: $score");
-            _visibleResult = true;
-            _timer.cancel();
-            _sendFinalScorePage(new Score(finalScore: score, anwser: questionsAnwsered));
+            setState(() {
+              _visible = false;
+              _visibleResult = true;
+            });
+            _timer.cancel(); 
+            questionsAnwsered.sort((a,b) => a.id!.compareTo(b.id!));
+            await _sendFinalScorePage(new Score(finalScore: score, myAnwsers: questionsAnwsered));
           } else {
             currentQuestion = getRandomQuestion();
           }
         }else{
           _timer.cancel();
         }
-      });
+        selectedOptions = null;
     });
   }
 
-  void _saveAnser(){
+  void _nextQuestion(){
     setState(() {
       _visible = false;
       if(!_visibleResult) {
-        _startTimer();
+        _fecthAnwser();
       }
     });
   }
@@ -71,17 +74,18 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState(){
     super.initState();
-    options = Options.getOptions();
     initQuiz();
   }
 
   void initQuiz() async{
+    options = Options.getOptions();
     questions = await Questions.getAnwsers();
     setState(()  {
+      questionsAnwsered = [];
       currentQuestion = getRandomQuestion();
       score = 0;
       _visibleResult = false;
-      _timer = Timer.periodic(Duration(milliseconds: 500), (timer) {
+      _timer = Timer(Duration(milliseconds: 500), () {
       setState(() {
           if(!_visible){
             _visible = true;
@@ -162,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Container(
                     padding: EdgeInsets.all(20.0),
                     child: Text(
-                      "Which country belong the company: ${currentQuestion?.question} ?", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                      "${currentQuestion?.question}", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Column(
@@ -175,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _saveAnser,
+        onPressed: _nextQuestion,
         tooltip: 'Save',
         child: Icon(Icons.check),
       ), // This trailing comma makes auto-formatting nicer for build methods.
@@ -184,6 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _sendFinalScorePage(Score score) async{
     await Navigator.push(context,MaterialPageRoute(builder: (c) => FinalScore(score: score,)));
+    initQuiz();
   }
 
 }

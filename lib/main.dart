@@ -1,4 +1,3 @@
-import 'package:bmwquiz/ui/finalScore.dart';
 import 'package:bmwquiz/ui/home.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +10,6 @@ void main() {
 
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FinalScore(),
+      home: MyHomePage(title: "Car Quiz",),
     ));
 }

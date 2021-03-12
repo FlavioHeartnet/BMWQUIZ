@@ -2,8 +2,8 @@ import 'package:bmwquiz/model/question.dart';
 
 class Score {
   int finalScore;
-  List<Questions?>? anwser;
+  List<Questions> myAnwsers;
 
-  Score({this.finalScore = 0, this.anwser});
+  Score({this.finalScore = 0, required this.myAnwsers});
 
 }

@@ -6,7 +6,7 @@ class Questions {
    String? question;
    String? anwser;
 
-  Questions({this.id, this.question, this.anwser});
+  Questions({required this.id, this.question = "", required this.anwser});
 
 
 
@@ -15,6 +15,7 @@ class Questions {
        json.forEach((key, value) {
          list!.add(
              Questions(
+               id: json["id"],
                question: json['Question'],
                anwser: json['Anwser'],
              )
@@ -24,16 +25,15 @@ class Questions {
        return list;
 
    }
-
-
+   
    static Future<List<Questions>?> getAnwsers() async {
       //Caso não consiga fazer a API roda Local usar estes Mocks abaixo ( descomentar este codigo comentado )
      return (<Questions>[
-       Questions(id: 1, anwser: "Germany", question: "BMW"),
-       Questions(id: 2, anwser: "Japan", question: "Toyota"),
-       Questions(id: 3, anwser: "England", question: "Mini"),
-       Questions(id: 4, anwser: "USA", question: "General Motors"),
-       Questions(id: 5, anwser: "England", question: "Rolls-Royce")
+       Questions(id: 1, anwser: "Germany", question: "Which country belong the company: BMW"),
+       Questions(id: 2, anwser: "Japan", question: "Which country belong the company: Toyota"),
+       Questions(id: 3, anwser: "England", question: "Which country belong the company: Mini"),
+       Questions(id: 4, anwser: "USA", question: "Which country belong the company: General Motors"),
+       Questions(id: 5, anwser: "England", question: "Which country belong the company: Rolls-Royce")
      ]);
 
      //Abaixo subistituir a url local para o local host criado do seu IISExpress ou usar pacote node iisexpress-proxy
