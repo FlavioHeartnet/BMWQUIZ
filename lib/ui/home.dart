@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
     return questions![_random.nextInt(questions!.length)];
   }
 
-  _fecthAnwser(){
+  void _fecthAnwser(){
     Timer(Duration(milliseconds: 1000), () async {
         if(!_visible) {
           setState(() {
@@ -111,12 +111,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
        });
   }
 
-  _firstFadeInOutAnimatedQuestionLoad(){
-    Timer(Duration(milliseconds: 500), () {
+  _fadeInOutAnimatedQuestionLoad() {
+     _visible = false;
+     Timer(Duration(seconds: 1), () {
       setState(() {
           if(!_visible){
             _visible = true;
           }
+          initQuiz();
+
       });
     });
   }
@@ -130,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       currentQuestion = getRandomQuestion();
       score = 0;
     });
-    _firstFadeInOutAnimatedQuestionLoad();
+    
   }
 
   setSelectedOptions(Options? option){
@@ -160,6 +163,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       return widgets;
   }
 
+  void _refreshQuiz(){
+    _countTimer.cancel(); //Stop the counter of the question before send to the finalScore page
+    _fadeInOutAnimatedQuestionLoad();
+  }
+double _getVisibilityAnimationOpacity(){
+  return _visible ? 1.0 : 0.0;
+}
   @override
   Widget build(BuildContext context) {
 
@@ -169,9 +179,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           Padding(
             padding: EdgeInsets.only(right: 20.0),
             child: GestureDetector(
-              onTap: () {
-                initQuiz();
-              },
+              onTap: () => _refreshQuiz(),
               child: Icon(
                 Icons.refresh
               ),
@@ -182,7 +190,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       ),
       body: Column(
         children: [
-          Row(
+          AnimatedOpacity(opacity: _getVisibilityAnimationOpacity(), duration: Duration(milliseconds: 200),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Stack(
@@ -212,11 +221,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
                 ],
               )
             ],
-          ),
+          ),),
           Container(
             margin: EdgeInsets.all(24),
             child: AnimatedOpacity(
-              opacity: _visible ? 1.0 : 0.0,
+              opacity: _getVisibilityAnimationOpacity(),
               duration: Duration(milliseconds: 200),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -247,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   _sendFinalScorePage(Score score) async{
       var navigateResult = await Navigator.push(context,MaterialPageRoute(builder: (c) => FinalScore(score: score,)));
       if(navigateResult == 'init_quiz'){
-         initQuiz();
+         _fadeInOutAnimatedQuestionLoad();
       }
   }
 
