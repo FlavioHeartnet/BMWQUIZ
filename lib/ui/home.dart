@@ -26,15 +26,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   final _random = new Random();
   Questions? currentQuestion;
   List<Questions> questionsAnwsered = [];
-  late Timer _timer;
+  late Timer _countTimer;
   late AnimationController progressBarController;
+  int _countTimerValue = 20;
+  final int _questionTimerValue = 20;
 
   Questions getRandomQuestion() {
     return questions![_random.nextInt(questions!.length)];
   }
 
   _fecthAnwser(){
-    _timer = Timer(Duration(milliseconds: 1000), () async {
+    Timer(Duration(milliseconds: 1000), () async {
         if(!_visible) {
           setState(() {
             _visible = true;
@@ -47,15 +49,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           if (questions!.length == 0 || questions == null) {
             setState(() {
               _visible = false;
+              _countTimer.cancel(); //Stop the counter of the question before send to the finalScore page
             });
-            _timer.cancel(); 
             questionsAnwsered.sort((a,b) => a.id!.compareTo(b.id!));
             await _sendFinalScorePage(new Score(finalScore: score, myAnwsers: questionsAnwsered));
           } else {
             currentQuestion = getRandomQuestion();
           }
-        }else{
-          _timer.cancel();
         }
         selectedOptions = null;
     });
@@ -64,9 +64,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   void _nextQuestion(){
     setState(() {
       _visible = false;
+      _countTimer.cancel();
       _fecthAnwser();
-      _initProgressBarAnimation();
-        
+      _initProgressBarAnimation();   
     });
   }
 
@@ -85,12 +85,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   void _initProgressBarAnimation(){
     progressBarController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 20),
+      duration: Duration(seconds: _questionTimerValue),
     )..addListener(() {
       setState(() {
-        
+         
       });
     });
+    _questionsTimerCounter();
       progressBarController.forward().then((value) => {
         if(questions?.length != 0 && progressBarController.isCompleted){
           setState(()=>{
@@ -101,15 +102,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
       
   }
 
+  _questionsTimerCounter(){
+      _countTimerValue = _questionTimerValue;
+      _countTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+          setState(() {
+            _countTimerValue > 0 ? _countTimerValue-- : timer.cancel();
+          });
+       });
+  }
+
   _firstFadeInOutAnimatedQuestionLoad(){
-    _timer = Timer(Duration(milliseconds: 500), () {
+    Timer(Duration(milliseconds: 500), () {
       setState(() {
           if(!_visible){
             _visible = true;
           }
-            _timer.cancel();
       });
-      });
+    });
   }
 
   void initQuiz() async{
@@ -176,15 +185,31 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Container(
-                width: 100,
-                height: 100,
-                padding: EdgeInsets.all(20),
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.grey,
-                  value: progressBarController.value,
-                  semanticsLabel: "Timer for anwser the question",
-                ),
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.transparent
+                    ),
+                    width: 100,
+                    height: 100,
+                    padding: EdgeInsets.all(20),
+                    child: Center(
+                        child: Text("$_countTimerValue", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+                      ),
+                    ),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.grey,
+                      value: progressBarController.value,
+                      semanticsLabel: "Timer for anwser the question",
+                    ),
+                  )
+                ],
               )
             ],
           ),

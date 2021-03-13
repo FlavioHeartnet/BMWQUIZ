@@ -56,7 +56,7 @@ List<Questions>? rightAnwsers;
   }
 
   String? _checkNullValueForBlanketAnwser(int index){
-    return widget.score.myAnwsers[index].anwser == "null" ? "Not Anwsered" :  widget.score.myAnwsers[index].anwser;
+    return widget.score.myAnwsers[index].anwser == null ? "Not Anwsered" :  widget.score.myAnwsers[index].anwser;
   }
 
    List<Widget> _listFinalResultItens(int index, List<Questions>? rightAnwsers){
